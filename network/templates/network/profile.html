@@ -1,0 +1,63 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2>{{ username }}'s Profile</h2>
+
+    <ul>
+        <li><strong>Number of followers this user has:</strong> {{ followers }}</li>
+        <li><strong>Number of people that this user follows:</strong> {{ following }}</li>
+    </ul>
+
+    {% for post in page_obj %}
+        <hr>
+        <h3>{{ post.creator }}</h3>
+        <p>{{ post.content }}</p>
+        <ul>
+            <li><strong>Timestamp:</strong> {{ post.timestamp }}</li>
+            <li><strong>Likes:</strong> {{ post.likes.count }}</li>
+        </ul>
+    {% empty %}
+        <p>{{ username }} has not created any posts.</p>
+    {% endfor %}
+
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+
+    {% if user_id == user.id %}
+        <!-- do nothing -->
+    {% elif user_id in user_following %}
+        <form action="{% url 'unfollow' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="hidden" name="user_id" value="{{ user_id }}">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Unfollow">
+        </form>
+    {% else %}
+        <form action="{% url 'follow' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="hidden" name="user_id" value="{{ user_id }}">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Follow">
+        </form>
+    {% endif %}
+
+{% endblock %}

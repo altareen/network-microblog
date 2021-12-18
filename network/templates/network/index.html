@@ -1,0 +1,63 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>All Posts</h2>
+
+    {% if user.is_authenticated %}    
+        <hr>
+        <h2>New Post</h2>
+        <form action="{% url 'index' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit">
+        </form>
+    {% endif %}
+    
+    {% for post in page_obj %}
+        <hr>
+        <h3><a href="{% url 'profile' post.creator.id %}">{{ post.creator }}</a></h3>
+        {% if user == post.creator %}    
+            <button class="btn btn-sm btn-outline-primary" id="edit_{{ post.id }}" onclick="edit_post({{ post.id }})">Edit</button>
+            <p id ="post_{{ post.id }}">{{ post.content }}</p>
+        {% else %}    
+            <p>{{ post.content }}</p>
+        {% endif %}
+        <ul>
+            <li><strong>Timestamp:</strong> {{ post.timestamp }}</li>
+            <li><strong>Likes:</strong> <span id="like_amount_{{ post.id }}">{{ post.likes.count }}</span></li>
+        </ul>
+        
+        {% if user in post.likes.all %}
+            <button class="btn btn-sm btn-outline-primary" id="like_{{ post.id }}" onclick="decrease_likes({{ post.id }})">Unlike</button>
+        {% else %}
+            <button class="btn btn-sm btn-outline-primary" id="like_{{ post.id }}" onclick="increase_likes({{ post.id }})">Like</button>
+        {% endif %}
+    {% empty %}
+        <hr>
+        <p>No posts have been created yet.</p>
+    {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/edit.js' %}"></script>
+{% endblock %}

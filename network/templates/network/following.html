@@ -1,0 +1,36 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2>Following Posts</h2>
+    
+    {% for post in page_obj %}
+        <hr>
+        <h3><a href="{% url 'profile' post.creator.id %}">{{ post.creator }}</a></h3>
+        <p>{{ post.content }}</p>
+        <ul>
+            <li><strong>Timestamp:</strong> {{ post.timestamp }}</li>
+            <li><strong>Likes:</strong> {{ post.likes.count }}</li>
+        </ul>
+    {% empty %}
+        <p>{{ user.username }} is not following any users.</p>
+    {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+{% endblock %}
